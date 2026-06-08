@@ -7,7 +7,8 @@ export const cards = [
     color: "#0a4fa8",
     network: "Visa",
     annualFee: 550,
-    annualFeeDate: "Check statement",
+    annualFeeDate: "September 1",
+    annualFeeMonth: 9,
     categories: [
       { label: "Chase Travel (portal)", multiplier: "8x", rate: 8, points: true, tags: ["travel-portal"] },
       { label: "Flights & hotels booked direct", multiplier: "4x", rate: 4, points: true, tags: ["flights", "hotels-direct"] },
@@ -23,6 +24,43 @@ export const cards = [
       { label: "DoorDash DashPass", description: "Complimentary DashPass membership while enrolled.", category: "dining", expiry: null },
     ],
     redemptionTip: "Points worth 1.5¢ each via Chase Travel portal. Transfer to United, Hyatt, Marriott, and more at 1:1.",
+    playbook: {
+      title: "First Renewal — Retention Bonus or Downgrade Strategy",
+      context: "This is your first renewal cycle. The $550 fee posts September 1st. Chase gives you exactly 30 days to cancel or downgrade for a full refund. Here's how to play it.",
+      effectiveCost: "Net cost after $300 travel credit = $250/yr — worth it only if you use Priority Pass lounges or book significant travel.",
+      steps: [
+        {
+          timing: "Sep 1 — Fee Posts",
+          label: "Do NOT call yet",
+          detail: "Your $300 annual travel credit resets on the first statement after your anniversary. Call too early and you risk forfeiting the new credit. Wait for it to appear in your account.",
+          type: "warning",
+        },
+        {
+          timing: "Sep 1–7",
+          label: "Spend the $300 travel credit immediately",
+          detail: "Book anything that codes as travel — flights, hotels, Uber, transit passes, parking. Chase auto-applies the credit to your statement. Historically they do not claw it back if you later cancel or downgrade.",
+          type: "action",
+        },
+        {
+          timing: "Sep 7–25",
+          label: "Call Chase and ask for a retention offer",
+          detail: "Call the number on the back of the card and say: \"I'm considering canceling due to the annual fee. Are there any retention offers available?\" Chase commonly offers 10,000–50,000 bonus points or a statement credit. If the offer covers $100+, it likely makes sense to keep the card another year.",
+          type: "action",
+        },
+        {
+          timing: "By Sep 30 — Hard Deadline",
+          label: "Decide: keep, downgrade, or cancel",
+          detail: "Chase's strict window is 30 days from the fee posting date. After September 30th, you will NOT get a refund. Options: (1) Keep it if the retention offer was good. (2) Downgrade to Chase Sapphire Preferred ($95/yr) — you keep your points and account history, just lose the premium perks. (3) Cancel entirely for a full $550 refund.",
+          type: "deadline",
+        },
+        {
+          timing: "If downgrading",
+          label: "Downgrade to Sapphire Preferred, not a no-fee card",
+          detail: "Downgrading to CSP ($95/yr) keeps your Ultimate Rewards points alive and preserves your account age (good for credit score). Canceling entirely kills your UR points if you have no other Chase card. The Ink Business Preferred can hold UR points as a fallback.",
+          type: "tip",
+        },
+      ],
+    },
   },
   {
     id: "hilton",
