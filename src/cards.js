@@ -179,6 +179,24 @@ export const cards = [
     ],
     redemptionTip: "Miles worth 1¢ each as statement credit, or transfer to 15+ airline/hotel partners (Air Canada, Turkish, Wyndham, etc.) — often 1:1.",
   },
+  {
+    id: "citi",
+    name: "Citi Double Cash",
+    shortName: "Citi",
+    owner: "patrick",
+    color: "#056DAE",
+    network: "Mastercard",
+    annualFee: 0,
+    annualFeeDate: null,
+    categories: [
+      { label: "All purchases (2% total: 1% on buy + 1% on pay)", multiplier: "2%", rate: 2, points: false, tags: ["dining", "groceries", "gas", "travel-portal", "flights", "hotels-direct", "hotels-brand", "phone", "other"] },
+    ],
+    benefits: [
+      { label: "No Annual Fee", description: "No annual fee — straight 2% cashback on everything.", category: "credit", expiry: null },
+      { label: "No Foreign Transaction Fees", description: "Use abroad without extra fees.", category: "travel", expiry: null },
+    ],
+    redemptionTip: "Simple 2% on everything — best fallback card when no other card earns more than 2x on a category.",
+  },
 ];
 
 // Spending buckets for the "Best Card" summary view
