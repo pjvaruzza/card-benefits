@@ -1,177 +1,89 @@
 import { useState } from "react";
 import { cards, spendingBuckets } from "./cards";
 
-const ownerColors = {
-  patrick: "bg-blue-100 text-blue-800",
-  "michael anne": "bg-pink-100 text-pink-800",
-};
+// ─── Shared helpers ───────────────────────────────────────────────────────────
 
-const categoryIcons = {
-  credit: "💳",
-  travel: "✈️",
-  hotel: "🏨",
-  dining: "🍽️",
-  protection: "🛡️",
-  status: "⭐",
-};
+function owner(card) {
+  return card.owner === "patrick" ? "Patrick" : "Michael Anne";
+}
 
-const stepStyles = {
-  warning:  { icon: "⚠️", bg: "bg-amber-50 border-amber-200",  label: "text-amber-800" },
-  action:   { icon: "✅", bg: "bg-green-50 border-green-200",   label: "text-green-800" },
-  deadline: { icon: "🚨", bg: "bg-red-50 border-red-200",       label: "text-red-800"   },
-  tip:      { icon: "💡", bg: "bg-blue-50 border-blue-200",     label: "text-blue-800"  },
-};
+function daysUntil(month) {
+  const now = new Date();
+  const target = new Date(now.getFullYear(), month - 1, 1);
+  if (target < now) target.setFullYear(now.getFullYear() + 1);
+  return Math.ceil((target - now) / 86400000);
+}
 
-function OwnerBadge({ owner }) {
-  const label = owner === "patrick" ? "Patrick" : "Michael Anne";
+function Chevron({ open }) {
   return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ownerColors[owner]}`}>
-      {label}
-    </span>
+    <svg
+      className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${open ? "rotate-180" : ""}`}
+      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
   );
 }
 
-// ─── Cards view ───────────────────────────────────────────────────────────────
+// ─── Best Card For view ───────────────────────────────────────────────────────
 
-function CardView({ card }) {
+function BucketRow({ bucket }) {
   const [open, setOpen] = useState(false);
-  return (
-    <div className="rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-white">
-      <button className="w-full text-left p-5 flex items-start gap-4" onClick={() => setOpen(!open)}>
-        <div className="w-2 self-stretch rounded-full flex-shrink-0" style={{ backgroundColor: card.color }} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-gray-900 text-base">{card.name}</span>
-            <OwnerBadge owner={card.owner} />
-            {card.annualFee > 0 ? (
-              <span className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">${card.annualFee}/yr</span>
-            ) : (
-              <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">No annual fee</span>
-            )}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {card.categories.slice(0, 3).map((c) => (
-              <span key={c.label} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">
-                <strong>{c.multiplier}</strong> {c.label.toLowerCase()}
-              </span>
-            ))}
-          </div>
-        </div>
-        <span className="text-gray-400 mt-1 flex-shrink-0">{open ? "▲" : "▼"}</span>
-      </button>
 
-      {open && (
-        <div className="border-t border-gray-100 px-5 pb-5 space-y-5">
-          <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-4 mb-2">Earning Rates</h3>
-            <div className="space-y-1">
-              {card.categories.map((c) => (
-                <div key={c.label} className="flex justify-between text-sm">
-                  <span className="text-gray-700">{c.label}</span>
-                  <span className="font-semibold" style={{ color: card.color }}>{c.multiplier} {c.points ? "pts" : "cash"}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {card.benefits.length > 0 && (
-            <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Benefits</h3>
-              <div className="space-y-2">
-                {card.benefits.map((b) => (
-                  <div key={b.label} className="bg-gray-50 rounded-xl p-3">
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5">{categoryIcons[b.category] || "•"}</span>
-                      <div>
-                        <div className="font-medium text-sm text-gray-900">{b.label}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">{b.description}</div>
-                        {b.expiry && <div className="text-xs text-amber-600 mt-1 font-medium">⏰ {b.expiry}</div>}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {card.annualFee > 0 && (
-            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-sm">
-              <span className="font-medium text-amber-800">Annual Fee:</span>{" "}
-              <span className="text-amber-700">${card.annualFee} — {card.annualFeeDate}</span>
-            </div>
-          )}
-
-          {card.redemptionTip && (
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm text-blue-800">
-              <span className="font-medium">💡 Redemption:</span> {card.redemptionTip}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Summary view ─────────────────────────────────────────────────────────────
-
-function RateBar({ rate, maxRate, color }) {
-  const pct = Math.round((rate / maxRate) * 100);
-  return (
-    <div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
-    </div>
-  );
-}
-
-function BucketCard({ bucket }) {
-  const [open, setOpen] = useState(false);
   const entries = [];
   for (const card of cards) {
     let best = null;
     for (const cat of card.categories) {
-      if (cat.tags.includes(bucket.tag)) {
-        if (!best || cat.rate > best.rate) best = cat;
-      }
+      if (cat.tags.includes(bucket.tag) && (!best || cat.rate > best.rate)) best = cat;
     }
     if (best) entries.push({ card, cat: best });
   }
   entries.sort((a, b) => b.cat.rate - a.cat.rate);
-  if (entries.length === 0) return null;
+  if (!entries.length) return null;
+
   const top = entries[0];
-  const maxRate = entries[0].cat.rate;
+  const maxRate = top.cat.rate;
 
   return (
-    <div className="rounded-2xl border border-gray-200 shadow-sm bg-white overflow-hidden">
-      <button className="w-full text-left p-4 flex items-center gap-3" onClick={() => setOpen(!open)}>
-        <span className="text-2xl">{bucket.icon}</span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold text-gray-900">{bucket.label}</span>
-            <span className="text-xs text-gray-400 flex-shrink-0">{open ? "▲" : "▼"}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm font-bold" style={{ color: top.card.color }}>{top.cat.multiplier} {top.cat.points ? "pts" : "cash"}</span>
-            <span className="text-xs text-gray-500">· {top.card.shortName}</span>
-            <OwnerBadge owner={top.card.owner} />
-          </div>
+    <div className="border-b border-gray-100 last:border-0">
+      <button
+        className="w-full flex items-center gap-4 py-3.5 px-5 text-left hover:bg-gray-50 transition-colors"
+        onClick={() => setOpen(!open)}
+      >
+        <span className="text-lg w-6 text-center flex-shrink-0">{bucket.icon}</span>
+        <span className="flex-1 text-sm font-medium text-gray-800">{bucket.label}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-gray-900">
+            {top.cat.multiplier} <span className="font-normal text-gray-400">{top.cat.points ? "pts" : "cash"}</span>
+          </span>
+          <span className="text-xs text-gray-400 hidden sm:inline">· {top.card.shortName}</span>
+          <span className="text-xs text-gray-400">· {owner(top.card)}</span>
         </div>
+        <Chevron open={open} />
       </button>
 
       {open && (
-        <div className="border-t border-gray-100 px-4 pb-4 pt-3 space-y-2">
-          {entries.map(({ card, cat }) => (
-            <div key={card.id} className="flex items-center gap-3">
-              <div className="w-20 flex-shrink-0">
-                <span className="font-bold text-sm" style={{ color: card.color }}>{cat.multiplier}</span>
-                <span className="text-xs text-gray-400 ml-1">{cat.points ? "pts" : "%"}</span>
+        <div className="px-5 pb-4 pt-1 bg-gray-50 border-t border-gray-100">
+          <div className="space-y-2.5">
+            {entries.map(({ card, cat }, i) => (
+              <div key={card.id} className="flex items-center gap-3">
+                <span className={`text-xs w-4 text-right flex-shrink-0 font-medium ${i === 0 ? "text-gray-900" : "text-gray-400"}`}>
+                  {i + 1}
+                </span>
+                <div className="flex-1 bg-gray-200 rounded-full h-1 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gray-700"
+                    style={{ width: `${Math.round((cat.rate / maxRate) * 100)}%`, opacity: i === 0 ? 1 : 0.35 + (0.65 * (1 - i / entries.length)) }}
+                  />
+                </div>
+                <span className={`text-sm w-12 text-right font-semibold flex-shrink-0 ${i === 0 ? "text-gray-900" : "text-gray-500"}`}>
+                  {cat.multiplier}
+                </span>
+                <span className="text-xs text-gray-500 w-20 flex-shrink-0">{card.shortName}</span>
+                <span className="text-xs text-gray-400 w-20 flex-shrink-0">{owner(card)}</span>
               </div>
-              <RateBar rate={cat.rate} maxRate={maxRate} color={card.color} />
-              <div className="w-32 flex-shrink-0 flex items-center gap-1.5 justify-end">
-                <span className="text-xs text-gray-700 font-medium">{card.shortName}</span>
-                <OwnerBadge owner={card.owner} />
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -180,98 +92,185 @@ function BucketCard({ bucket }) {
 
 function SummaryView() {
   return (
-    <div className="space-y-3">
-      {spendingBuckets.map((bucket) => (
-        <BucketCard key={bucket.tag} bucket={bucket} />
-      ))}
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {spendingBuckets.map((b) => <BucketRow key={b.tag} bucket={b} />)}
+    </div>
+  );
+}
+
+// ─── All Cards view ───────────────────────────────────────────────────────────
+
+function CardRow({ card }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="border-b border-gray-100 last:border-0">
+      <button
+        className="w-full flex items-start gap-4 py-4 px-5 text-left hover:bg-gray-50 transition-colors"
+        onClick={() => setOpen(!open)}
+      >
+        <div className="w-1 self-stretch rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: card.color }} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="font-semibold text-gray-900 text-sm">{card.name}</span>
+            <span className="text-xs text-gray-400 flex-shrink-0">
+              {card.annualFee > 0 ? `$${card.annualFee}/yr` : "No fee"}
+            </span>
+          </div>
+          <div className="text-xs text-gray-400 mt-0.5">{owner(card)} · {card.network}</div>
+          {!open && (
+            <div className="text-xs text-gray-500 mt-1.5">
+              {card.categories.slice(0,2).map(c => `${c.multiplier} ${c.label.toLowerCase()}`).join("  ·  ")}
+            </div>
+          )}
+        </div>
+        <Chevron open={open} />
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 bg-gray-50 border-t border-gray-100 space-y-5">
+          {/* Earning rates */}
+          <div className="pt-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Earning Rates</p>
+            <div className="space-y-1.5">
+              {card.categories.map((c) => (
+                <div key={c.label} className="flex justify-between text-sm">
+                  <span className="text-gray-600">{c.label}</span>
+                  <span className="font-semibold text-gray-900">{c.multiplier} <span className="font-normal text-gray-400">{c.points ? "pts" : "cash"}</span></span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Benefits */}
+          {card.benefits.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Benefits</p>
+              <div className="space-y-2">
+                {card.benefits.map((b) => (
+                  <div key={b.label} className="text-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-medium text-gray-800">{b.label}</span>
+                      {b.expiry && <span className="text-xs text-amber-600 flex-shrink-0">{b.expiry}</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">{b.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Annual fee */}
+          {card.annualFee > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Annual fee</span>
+              <span className="text-gray-700">${card.annualFee} — {card.annualFeeDate}</span>
+            </div>
+          )}
+
+          {/* Redemption tip */}
+          {card.redemptionTip && (
+            <div className="text-xs text-gray-500 border-t border-gray-200 pt-3">
+              <span className="font-medium text-gray-700">Tip: </span>{card.redemptionTip}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CardsView({ ownerFilter, search }) {
+  const filtered = cards.filter((c) => {
+    if (ownerFilter !== "all" && c.owner !== ownerFilter) return false;
+    if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {filtered.length === 0
+        ? <p className="text-gray-400 text-center py-12 text-sm">No cards match.</p>
+        : filtered.map((card) => <CardRow key={card.id} card={card} />)
+      }
     </div>
   );
 }
 
 // ─── Playbook view ────────────────────────────────────────────────────────────
 
-const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const stepStyle = {
+  warning:  { dot: "bg-amber-400",  label: "text-amber-700"  },
+  action:   { dot: "bg-green-500",  label: "text-green-700"  },
+  deadline: { dot: "bg-red-500",    label: "text-red-700"    },
+  tip:      { dot: "bg-blue-400",   label: "text-blue-700"   },
+};
 
-function daysUntil(month) {
-  const now = new Date();
-  const thisYear = now.getFullYear();
-  const target = new Date(thisYear, month - 1, 1);
-  if (target < now) target.setFullYear(thisYear + 1);
-  return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-}
-
-function PlaybookCard({ card }) {
+function PlaybookCardRow({ card }) {
   const [open, setOpen] = useState(false);
   const pb = card.playbook;
   const days = card.annualFeeMonth ? daysUntil(card.annualFeeMonth) : null;
 
-  const urgency = days === null ? null
-    : days <= 30 ? "red"
-    : days <= 60 ? "amber"
-    : "green";
-
-  const urgencyBadge = {
-    red:   "bg-red-100 text-red-700",
-    amber: "bg-amber-100 text-amber-700",
-    green: "bg-green-100 text-green-700",
-  };
-
   return (
-    <div className="rounded-2xl border border-gray-200 shadow-sm bg-white overflow-hidden">
-      <button className="w-full text-left p-4 flex items-start gap-3" onClick={() => setOpen(!open)}>
-        <div className="w-2 self-stretch rounded-full flex-shrink-0" style={{ backgroundColor: card.color }} />
+    <div className="border-b border-gray-100 last:border-0">
+      <button
+        className="w-full flex items-start gap-4 py-4 px-5 text-left hover:bg-gray-50 transition-colors"
+        onClick={() => setOpen(!open)}
+      >
+        <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ backgroundColor: card.color }} />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-gray-900">{card.name}</span>
-            <OwnerBadge owner={card.owner} />
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="font-semibold text-gray-900 text-sm">{card.name}</span>
+            <span className="text-xs text-gray-400 flex-shrink-0">${card.annualFee}/yr</span>
           </div>
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            <span className="text-sm text-gray-600">
-              <span className="font-semibold">${card.annualFee}/yr</span>
-              {card.annualFeeDate && <span className="text-gray-400"> · due {card.annualFeeDate}</span>}
-            </span>
+          <div className="flex items-center gap-3 mt-0.5">
+            <span className="text-xs text-gray-400">{owner(card)} · due {card.annualFeeDate}</span>
             {days !== null && (
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${urgencyBadge[urgency]}`}>
-                {days === 0 ? "Today!" : `${days}d away`}
+              <span className={`text-xs font-medium ${days <= 30 ? "text-red-600" : days <= 60 ? "text-amber-600" : "text-gray-400"}`}>
+                {days}d
               </span>
             )}
           </div>
-          {pb && <p className="text-xs text-gray-500 mt-1">{pb.title}</p>}
+          {pb && !open && <p className="text-xs text-gray-400 mt-1">{pb.title}</p>}
         </div>
-        <span className="text-gray-400 mt-1 flex-shrink-0">{open ? "▲" : "▼"}</span>
+        <Chevron open={open} />
       </button>
 
-      {open && pb && (
-        <div className="border-t border-gray-100 px-4 pb-5">
-          <p className="text-sm text-gray-600 mt-3 mb-1">{pb.context}</p>
-          {pb.effectiveCost && (
-            <div className="my-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700">
-              💰 <span className="font-medium">Effective cost:</span> {pb.effectiveCost}
-            </div>
-          )}
-          <div className="space-y-3 mt-3">
-            {pb.steps.map((step, i) => {
-              const s = stepStyles[step.type] || stepStyles.tip;
-              return (
-                <div key={i} className={`rounded-xl border p-3 ${s.bg}`}>
-                  <div className="flex items-start gap-2">
-                    <span className="text-base mt-0.5 flex-shrink-0">{s.icon}</span>
-                    <div>
-                      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{step.timing}</div>
-                      <div className={`font-semibold text-sm mt-0.5 ${s.label}`}>{step.label}</div>
-                      <div className="text-xs text-gray-600 mt-1 leading-relaxed">{step.detail}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {open && (
+        <div className="px-5 pb-5 bg-gray-50 border-t border-gray-100">
+          {pb ? (
+            <div className="pt-4 space-y-4">
+              <p className="text-sm text-gray-600">{pb.context}</p>
 
-      {open && !pb && (
-        <div className="border-t border-gray-100 px-4 py-4 text-sm text-gray-400 italic">
-          No specific playbook yet — add one to cards.js to track strategy here.
+              {pb.effectiveCost && (
+                <div className="text-xs text-gray-500 border-l-2 border-gray-300 pl-3">
+                  {pb.effectiveCost}
+                </div>
+              )}
+
+              {/* Timeline */}
+              <div className="relative">
+                <div className="absolute left-[5px] top-2 bottom-2 w-px bg-gray-200" />
+                <div className="space-y-4">
+                  {pb.steps.map((step, i) => {
+                    const s = stepStyle[step.type] || stepStyle.tip;
+                    return (
+                      <div key={i} className="flex gap-4 relative">
+                        <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 z-10 ring-2 ring-white ${s.dot}`} />
+                        <div className="flex-1 pb-1">
+                          <div className="text-xs text-gray-400 font-medium uppercase tracking-wide">{step.timing}</div>
+                          <div className={`text-sm font-semibold mt-0.5 ${s.label}`}>{step.label}</div>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">{step.detail}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 pt-4 italic">No playbook yet for this card.</p>
+          )}
         </div>
       )}
     </div>
@@ -285,94 +284,88 @@ function PlaybookView() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-sm text-blue-800">
-        <p className="font-semibold mb-1">💡 How to use this section</p>
-        <p className="text-blue-700">Each card with an annual fee has a strategy playbook. Tap to expand the action plan for how to maximize perks, negotiate retention offers, and decide whether to keep, downgrade, or cancel before the deadline.</p>
+      <p className="text-sm text-gray-500 px-1">
+        Track annual fee dates, retention strategies, and whether to keep, downgrade, or cancel.
+      </p>
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {feeCards.map((card) => <PlaybookCardRow key={card.id} card={card} />)}
       </div>
-      {feeCards.map((card) => (
-        <PlaybookCard key={card.id} card={card} />
-      ))}
     </div>
   );
 }
 
 // ─── App shell ────────────────────────────────────────────────────────────────
 
+const TABS = [
+  { id: "summary",  label: "Best Card For" },
+  { id: "playbook", label: "Playbook" },
+  { id: "cards",    label: "All Cards" },
+];
+
 export default function App() {
   const [view, setView] = useState("summary");
   const [ownerFilter, setOwnerFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const filtered = cards.filter((c) => {
-    if (ownerFilter !== "all" && c.owner !== ownerFilter) return false;
-    if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
-
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold text-gray-900">Card Benefits</h1>
-          <p className="text-sm text-gray-500">Patrick & Michael Anne</p>
-          <div className="mt-3 flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
-            {[
-              { id: "summary",  label: "Best Card For..." },
-              { id: "playbook", label: "Playbook" },
-              { id: "cards",    label: "All Cards" },
-            ].map((tab) => (
+        <div className="max-w-2xl mx-auto px-5">
+          <div className="pt-5 pb-3">
+            <h1 className="text-base font-semibold text-gray-900 tracking-tight">Card Benefits</h1>
+            <p className="text-xs text-gray-400 mt-0.5">Patrick & Michael Anne</p>
+          </div>
+          <nav className="flex gap-5 border-b border-gray-100 -mx-5 px-5">
+            {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setView(tab.id)}
-                className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                  view === tab.id ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"
+                className={`text-sm pb-2.5 border-b-2 transition-colors ${
+                  view === tab.id
+                    ? "border-gray-900 text-gray-900 font-medium"
+                    : "border-transparent text-gray-400 hover:text-gray-600"
                 }`}
               >
                 {tab.label}
               </button>
             ))}
-          </div>
+          </nav>
 
           {view === "cards" && (
-            <div className="mt-3 flex gap-2 flex-wrap">
+            <div className="py-3 flex gap-3 items-center">
               {["all", "patrick", "michael anne"].map((o) => (
                 <button
                   key={o}
                   onClick={() => setOwnerFilter(o)}
-                  className={`text-sm px-3 py-1 rounded-full border transition-colors ${
+                  className={`text-xs px-3 py-1 rounded-full transition-colors ${
                     ownerFilter === o
-                      ? "bg-gray-900 text-white border-gray-900"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                      ? "bg-gray-900 text-white"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  {o === "all" ? "Everyone" : o === "patrick" ? "Patrick" : "Michael Anne"}
+                  {o === "all" ? "All" : o === "patrick" ? "Patrick" : "Michael Anne"}
                 </button>
               ))}
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="text-sm px-3 py-1 rounded-full border border-gray-200 outline-none focus:border-gray-400 ml-auto"
+                className="ml-auto text-xs px-3 py-1 rounded-full border border-gray-200 outline-none focus:border-gray-400 bg-white"
               />
             </div>
           )}
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main className="max-w-2xl mx-auto px-5 py-6">
         {view === "summary"  && <SummaryView />}
         {view === "playbook" && <PlaybookView />}
-        {view === "cards"    && (
-          <div className="space-y-3">
-            {filtered.length === 0 && <p className="text-gray-400 text-center py-12">No cards match.</p>}
-            {filtered.map((card) => <CardView key={card.id} card={card} />)}
-          </div>
-        )}
+        {view === "cards"    && <CardsView ownerFilter={ownerFilter} search={search} />}
       </main>
 
-      <footer className="max-w-2xl mx-auto px-4 py-8 text-center text-xs text-gray-400">
-        Tap any row to expand · Benefits may change — verify with issuer
+      <footer className="max-w-2xl mx-auto px-5 pb-10 text-center text-xs text-gray-300">
+        Benefits may change — verify with issuer
       </footer>
     </div>
   );
