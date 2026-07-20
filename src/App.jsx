@@ -4,7 +4,9 @@ import { cards, spendingBuckets } from "./cards";
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
 function owner(card) {
-  return card.owner === "patrick" ? "Patrick" : "Michael Anne";
+  if (card.owner === "patrick") return "Patrick";
+  if (card.owner === "michael anne") return "Michael Anne";
+  return "Joint";
 }
 
 function daysUntil(month) {
@@ -342,17 +344,22 @@ export default function App() {
 
           {view === "cards" && (
             <div className="py-3 flex gap-3 items-center">
-              {["all", "patrick", "michael anne"].map((o) => (
+              {[
+                { id: "all", label: "All" },
+                { id: "patrick", label: "Patrick" },
+                { id: "michael anne", label: "Michael Anne" },
+                { id: "joint", label: "Joint" },
+              ].map((o) => (
                 <button
-                  key={o}
-                  onClick={() => setOwnerFilter(o)}
+                  key={o.id}
+                  onClick={() => setOwnerFilter(o.id)}
                   className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                    ownerFilter === o
+                    ownerFilter === o.id
                       ? "bg-gray-900 text-white"
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  {o === "all" ? "All" : o === "patrick" ? "Patrick" : "Michael Anne"}
+                  {o.label}
                 </button>
               ))}
               <input
