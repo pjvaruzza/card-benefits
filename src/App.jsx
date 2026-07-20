@@ -113,9 +113,18 @@ function CardRow({ card }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2">
             <span className="font-semibold text-gray-900 text-sm">{card.name}</span>
-            <span className="text-xs text-gray-400 flex-shrink-0">
-              {card.annualFee > 0 ? `$${card.annualFee}/yr` : "No fee"}
-            </span>
+            <div className="text-right flex-shrink-0">
+              {card.annualFee > 0 ? (
+                <>
+                  <span className="text-xs font-medium text-gray-700">${card.annualFee}/yr</span>
+                  {card.annualFeeDate && card.annualFeeDate !== "Check statement" && (
+                    <span className="text-xs text-gray-400 ml-1.5">due {card.annualFeeDate}</span>
+                  )}
+                </>
+              ) : (
+                <span className="text-xs text-gray-400">No fee</span>
+              )}
+            </div>
           </div>
           <div className="text-xs text-gray-400 mt-0.5">{owner(card)} · {card.network}</div>
           {!open && (
